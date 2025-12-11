@@ -123,7 +123,7 @@ const main = async () => {
         await bot.sendMessage(phone, content, { media: urlMedia });
         return res.end('sent');
       } catch (error) {
-        console.error('Error enviando mensaje:', error);
+        // console.error('Error enviando mensaje:', error);
         // Respondemos success para que Chatwoot no reintente en bucle si fue error de validación
         return res.end('error sending message');
       }
