@@ -18,7 +18,7 @@ Una solución completa para conectar **WhatsApp** (vía Baileys) con **Chatwoot*
 
 ## 🛠️ Requisitos Previos
 
-- **Node.js** (v18 o superior)
+- **Node.js** (v20 o superior)
 - **pnpm** (Gestor de paquetes recomendado)
 - Una instancia de **Chatwoot** activa.
 - Un dispositivo móvil con WhatsApp listo para escanear.
@@ -27,7 +27,7 @@ Una solución completa para conectar **WhatsApp** (vía Baileys) con **Chatwoot*
 
 1. **Clonar el repositorio:**
    ```
-   git clone <URL_DE_TU_REPO>
+   git clone https://github.com/olico214/chatwoot-bot-nodejs.git
    cd <NOMBRE_DE_TU_CARPETA>
    ```
 2. **Instalar dependencias:** Se recomienda usar pnpm para una instalación rápida y eficiente.
@@ -40,8 +40,6 @@ Una solución completa para conectar **WhatsApp** (vía Baileys) con **Chatwoot*
  ```
 
 
-
-```markdown
 ## ⚙️ Configuración Paso a Paso
 
 Este bot incluye un dashboard visual para facilitar la integración.
