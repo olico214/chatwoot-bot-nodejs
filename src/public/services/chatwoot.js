@@ -130,7 +130,7 @@ const sendMessage = async (conversationId, msg) => {
             body: JSON.stringify({
                 content: msg,
                 message_type: "incoming",
-                private: false
+                private: true
             })
         })
         return true
@@ -156,7 +156,7 @@ const sendMediaMessage = async (conversationId, msg, filePath, mimeType) => {
     // Chatwoot permite content vacío si hay adjunto, pero null o string vacío está bien.
     if (msg) form.append("content", msg);
     form.append("message_type", "incoming");
-    form.append("private", "false");
+    form.append("private", "true");
 
     // IMPORTANTE: Eliminamos 'file_type', Chatwoot no lo usa y puede causar error.
 
