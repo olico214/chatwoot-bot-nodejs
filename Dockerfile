@@ -1,39 +1,26 @@
-# Image size ~ 400MB
+# THIS IS THE BASE IMAGE FOR THE BOT
 FROM node:21-alpine3.18 as builder
 
-WORKDIR /app
-
+# Enable Corepack and prepare for PNPM installation to increase performance
 RUN corepack enable && corepack prepare pnpm@latest --activate
 ENV PNPM_HOME=/usr/local/bin
 
-COPY . .
-
-COPY package*.json *-lock.yaml ./
-
-RUN apk add --no-cache --virtual .gyp \
-        python3 \
-        make \
-        g++ \
-    && apk add --no-cache git \
-    && pnpm install \
-    && apk del .gyp
-
-FROM node:21-alpine3.18 as deploy
-
+# Set the working directory
 WORKDIR /app
 
-ARG PORT
-ENV PORT $PORT
-EXPOSE $PORT
+# Copy package.json and pnpm-lock.yaml files to the working directory
+COPY package*.json pnpm-lock.yaml ./
 
-COPY --from=builder /app ./
-COPY --from=builder /app/*.json /app/*-lock.yaml ./
+# Install dependencies using PNPM
+COPY . .
+RUN pnpm i
 
-RUN corepack enable && corepack prepare pnpm@latest --activate 
-ENV PNPM_HOME=/usr/local/bin
+# Create a new stage for deployment
+FROM builder as deploy
 
-RUN npm cache clean --force && pnpm install --production --ignore-scripts \
-    && addgroup -g 1001 -S nodejs && adduser -S -u 1001 nodejs \
-    && rm -rf $PNPM_HOME/.npm $PNPM_HOME/.node-gyp
+# Copy only necessary files and directories for deployment
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
 
-CMD ["npm", "start"]
+RUN pnpm install
+CMD ["pnpm", "start"]

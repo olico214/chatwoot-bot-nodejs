@@ -31,7 +31,7 @@ const flowBienvenida = addKeyword(EVENTS.WELCOME)
 // 2. FLUJO AUDIO
 const flowAudio = addKeyword(EVENTS.VOICE_NOTE)
   .addAction({ capture: false }, async (ctx, { provider }) => {
-    const localPath = await provider.saveFile(ctx, { path: './assets' })
+    const localPath = await provider.saveFile(ctx, { path: './src/assets' })
     const phone = ctx.from
     const name = ctx.pushName
     const ext = getMimeType(localPath)
@@ -42,7 +42,7 @@ const flowAudio = addKeyword(EVENTS.VOICE_NOTE)
 // 3. FLUJO MEDIA (Imagenes/Video)
 const flowMedia = addKeyword(EVENTS.MEDIA)
   .addAction({ capture: false }, async (ctx, { provider }) => {
-    const localPath = await provider.saveFile(ctx, { path: './assets' })
+    const localPath = await provider.saveFile(ctx, { path: './src/assets' })
     const phone = ctx.from
     const mensaje = ctx?.message?.imageMessage?.caption ?? ""
     const name = ctx.pushName
@@ -54,7 +54,7 @@ const flowMedia = addKeyword(EVENTS.MEDIA)
 const flowDocument = addKeyword(EVENTS.DOCUMENT)
   .addAction({ capture: false }, async (ctx, { provider }) => {
     const mensaje = ctx?.message?.imageMessage?.caption ?? ""
-    const localPath = await provider.saveFile(ctx, { path: './assets' })
+    const localPath = await provider.saveFile(ctx, { path: './src/assets' })
     const phone = ctx.from
     const name = ctx.pushName
     const ext = getMimeType(localPath)

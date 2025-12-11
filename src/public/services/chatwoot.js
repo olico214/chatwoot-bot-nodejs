@@ -11,7 +11,7 @@ const __dirname = dirname(__filename)
 
 const getConfig = () => {
     try {
-        const jsonPath = join(__dirname, '../../public/json/currentKeys.json')
+        const jsonPath = join(__dirname, '../json/currentKeys.json')
         const raw = fs.readFileSync(jsonPath, 'utf-8')
         return JSON.parse(raw)
     } catch (e) {
