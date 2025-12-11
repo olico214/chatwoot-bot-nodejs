@@ -9,8 +9,9 @@
         /* --- ESTILOS GENERALES (RESET & FUENTES) --- */
         :root {
             --primary-color: #2563EB;
-            /* Azul moderno */
             --primary-hover: #1D4ED8;
+            --secondary-color: #10B981;
+            --secondary-hover: #059669;
             --bg-color: #F3F4F6;
             --card-bg: #FFFFFF;
             --text-main: #1F2937;
@@ -29,22 +30,34 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             display: flex;
+            /* CAMBIO CLAVE: row para ponerlos al lado, wrap para móviles */
+            flex-direction: row;
+            flex-wrap: wrap;
             align-items: center;
+            /* Centrado vertical */
             justify-content: center;
+            /* Centrado horizontal */
             min-height: 100vh;
             padding: 20px;
+            gap: 20px;
+            /* Espacio entre tarjetas */
         }
 
-        /* --- TARJETA PRINCIPAL --- */
+        /* --- TARJETA --- */
         .card {
             background-color: var(--card-bg);
             width: 100%;
-            max-width: 450px;
+            /* Ajustamos un poco el ancho máximo para que quepan bien dos */
+            max-width: 400px;
             padding: 2.5rem;
             border-radius: 16px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
                 0 8px 10px -6px rgba(0, 0, 0, 0.01);
             transition: transform 0.2s ease;
+
+            /* Para que ambas tarjetas intenten tener la misma altura visualmente si el contenido es similar, 
+               aunque aquí el contenido varía, flex-basis ayuda a la distribución */
+            flex: 1 1 350px;
         }
 
         .card-header {
@@ -56,6 +69,13 @@
             color: var(--text-main);
             font-size: 1.5rem;
             font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-header h3 {
+            color: var(--text-main);
+            font-size: 1.2rem;
+            font-weight: 600;
             margin-bottom: 0.5rem;
         }
 
@@ -95,11 +115,13 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
-        input::placeholder {
-            color: #9CA3AF;
+        input.readonly-copy {
+            background-color: #e5e7eb;
+            cursor: pointer;
+            color: #4b5563;
         }
 
-        /* --- BOTÓN --- */
+        /* --- BOTONES --- */
         button {
             width: 100%;
             padding: 0.875rem;
@@ -127,7 +149,19 @@
             cursor: not-allowed;
         }
 
-        /* --- STATUS DE RESPUESTA --- */
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            margin-top: 0.5rem;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--secondary-hover);
+        }
+
+        /* --- STATUS --- */
         #statusMessage {
             margin-top: 1rem;
             text-align: center;
@@ -146,6 +180,12 @@
             background-color: #FEE2E2;
             color: #991B1B;
         }
+
+        .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 1.5rem 0;
+        }
     </style>
 </head>
 
@@ -154,7 +194,7 @@
     <div class="card">
         <div class="card-header">
             <h2>Conexión Chatwoot</h2>
-            <p>Ingresa las credenciales de tu instancia para conectar el Bot.</p>
+            <p>Ingresa las credenciales de tu instancia.</p>
         </div>
 
         <form id="chatwootForm">
@@ -191,20 +231,66 @@
         <div id="statusMessage"></div>
     </div>
 
+    <div class="card">
+        <div class="card-header">
+            <h3>Integración</h3>
+            <p>Pasos finales para activar tu Bot.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="webhookUrl">1. Pega este Webhook en Chatwoot</label>
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">
+                Ve a <em>Ajustes -> Bandejas de entrada -> Ajustes -> Configuración</em>
+            </p>
+            <input type="text" id="webhookUrl" class="readonly-copy" readonly onclick="copyWebhook()">
+            <div id="copyFeedback" style="font-size: 0.8rem; color: green; margin-top: 4px; display: none;">¡Copiado!
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="form-group" style="text-align: center;">
+            <label>2. Enlaza tu WhatsApp</label>
+            <p style="font-size: 0.9rem; color: #555; margin-bottom: 10px;">
+                Escanea el código QR para iniciar sesión:
+            </p>
+            <a href="/" target="_blank" class="btn-secondary"
+                style="width:100%; padding: 0.875rem; border-radius: 8px; color: white; text-decoration: none; font-weight: 600;">
+                Abrir Código QR
+            </a>
+        </div>
+    </div>
+
     <script>
         const form = document.getElementById('chatwootForm');
         const statusDiv = document.getElementById('statusMessage');
         const btn = document.getElementById('submitBtn');
 
+        // --- LÓGICA DE WEBOOK ---
+        const currentOrigin = window.location.origin;
+        const webhookPath = '/v1/messages';
+        const fullWebhook = `${currentOrigin}${webhookPath}`;
+
+        document.getElementById('webhookUrl').value = fullWebhook;
+
+        function copyWebhook() {
+            const copyText = document.getElementById("webhookUrl");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+
+            const feedback = document.getElementById('copyFeedback');
+            feedback.style.display = 'block';
+            setTimeout(() => feedback.style.display = 'none', 2000);
+        }
+
+        // --- LÓGICA DE FORMULARIO ---
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            // 1. UI Loading state
             btn.disabled = true;
             btn.textContent = 'Procesando...';
             statusDiv.style.display = 'none';
 
-            // 2. Obtener datos
             const formData = {
                 url: document.getElementById('urlInstance').value,
                 idAcount: document.getElementById('accountId').value,
@@ -214,22 +300,15 @@
             };
 
             try {
-                // 3. Enviar al Bot (Endpoint que deberás crear en app.js)
                 const response = await fetch('/v1/save-chatwoot-config', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 });
-
-                const result = await response.json();
-
-                // 4. Feedback Visual
+                await response.json();
                 statusDiv.textContent = '✅ Configuración guardada correctamente.';
                 statusDiv.className = 'success';
                 statusDiv.style.display = 'block';
-
             } catch (error) {
                 console.error(error);
                 statusDiv.textContent = '❌ Error al conectar con el servidor.';
@@ -241,20 +320,25 @@
             }
         });
 
-
         const readData = async () => {
-            const res = await fetch('/v1/get-chatwoot-config', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
-            const data = await res.json()
-            document.getElementById('urlInstance').value = data.data.url || '';
-            document.getElementById('accountId').value = data.data.idAcount || '';
-            document.getElementById('inboxId').value = data.data.imboxID || '';
-            document.getElementById('accessToken').value = data.data.apiToken || '';
-            document.getElementById('phone').value = data.data.phone || '';
+            try {
+                const res = await fetch('/v1/get-chatwoot-config', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.data) {
+                        document.getElementById('urlInstance').value = data.data.url || '';
+                        document.getElementById('accountId').value = data.data.idAcount || '';
+                        document.getElementById('inboxId').value = data.data.imboxID || '';
+                        document.getElementById('accessToken').value = data.data.apiToken || '';
+                        document.getElementById('phone').value = data.data.phone || '';
+                    }
+                }
+            } catch (e) {
+                console.log("No config found.");
+            }
         }
         readData()
     </script>
